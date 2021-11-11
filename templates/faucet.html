@@ -2,6 +2,10 @@
 <html>
   <head>
     <title>MobileCoin Faucet</title>
+    <link rel="stylesheet" href="https://mobilecoin.com/_next/static/css/02d2376ba30a2ef5988b.css" data-n-g="">
+    <link rel="stylesheet" href="https://mobilecoin.com/_next/static/css/fc7b720e936d86a19873.css" data-n-p="">
+
+
   </head>
   <body>
     {% with messages = get_flashed_messages() %}
@@ -14,17 +18,22 @@
       {% endif %}
     {% endwith %}
 
-    <p>Hey kid, you want some magic internet money? What's your MobileCoin address?</p>
-    <form action="/" method="POST">
-        {% if hcaptcha_site_key %}
-            <div class="h-captcha" data-sitekey="{{hcaptcha_site_key}}"></div>
-            <script src="https://js.hcaptcha.com/1/api.js" async defer></script>
-        {% endif %}
 
-        <textarea id="address" name="address" rows="5" cols="100"></textarea>
-        <br />
-        <input type="submit" value="Pay me" />
-    </form>
+    <br>
+    <div class="width"><div class="gradient-border"><div class="gradient-border-inner"><div class="gradient-border"><div class="gradient-border-inner"><div class="gradient-border"><div class="gradient-border-inner"><div class="">
+        <p>Hey kid, you want some magic internet money? What's your MobileCoin address?</p>
+        <form action="/" method="POST">
+            {% if hcaptcha_site_key %}
+                <div class="h-captcha" data-sitekey="{{hcaptcha_site_key}}"></div>
+                <script src="https://js.hcaptcha.com/1/api.js" async defer></script>
+            {% endif %}
+
+            <textarea id="address" name="address" rows="5" cols="100" style="border: 1px #000 solid"></textarea>
+            <br />
+            <input type="submit" value="Pay me" class="button" />
+        </form>
+
+    </div></div></div></div></div></div></div></div>
 
   </body>
 </html>
