@@ -11,3 +11,4 @@ protobuf==3.19.1
 requests==2.26.0
 urllib3==1.26.7
 Werkzeug==2.0.2
+-e git+https://github.com/mobilecoinofficial/full-service.git@ef1ab817fbfb1c9a2e44de6a2af774c2e84079e8#egg=mobilecoin&subdirectory=cli
