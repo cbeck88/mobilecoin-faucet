@@ -14,7 +14,7 @@ from flask import (
     url_for,
 )
 
-FULL_SERVICE_URL = os.environ.get("FULL_SERVICE", "http://cvm:9090/wallet")
+FULL_SERVICE_URL = os.environ.get("FULL_SERVICE", "http://localhost:9090/wallet")
 full_service_client = mobilecoin.Client(FULL_SERVICE_URL)
 
 app = Flask(__name__)
@@ -23,7 +23,7 @@ app.secret_key = "very extremely secret guys"
 PAYMENT_AMOUNT = 0.01
 # Set this to None to disable captchas
 HCAPTCHA_SITE_KEY = None
-#HCAPTCHA_SITE_KEY = "d1986f6b-0e08-4980-a6dd-00f36484f80c"
+# HCAPTCHA_SITE_KEY = "d1986f6b-0e08-4980-a6dd-00f36484f80c"
 HCAPTCHA_SECRET = "0xa43F7aA369D873B361CE50EDf536ceD114EE274b"
 
 @app.route("/", methods=["GET", "POST"])
@@ -43,24 +43,24 @@ def faucet():
                 flash('You must complete the CAPTCHA to receive a payment')
                 return redirect(url_for("faucet"))
 
+        account_id = get_account_id()
         address = request.form['address']
-        # TODO: send the payment
+        r = full_service_client.build_and_submit_transaction(account_id, PAYMENT_AMOUNT, address)
+        print(r)
+
         flash("Okay, I paid you {} MOB at {}. You happy now?".format(PAYMENT_AMOUNT, address))
         return redirect(url_for("faucet"))
     else:
-        return render_template('faucet.html', hcaptcha_site_key = HCAPTCHA_SITE_KEY)
+        return render_template('faucet.html', hcaptcha_site_key=HCAPTCHA_SITE_KEY)
 
 
 def get_account_id():
     accounts = full_service_client.get_all_accounts()
-    if not accounts:
+    for account in accounts.values():
+        if account['name'] == 'faucet':
+            return account['account_id']
+    else:
         raise Exception("No accounts returned from full-service")
-
-    if len(accounts) > 1:
-        raise Exception("Confused by multiple accounts")
-
-
-    return list(accounts.keys())[0]
 
 
 @app.cli.command("create-account")
@@ -93,7 +93,6 @@ def txos():
     account_id = get_account_id()
     for txo in full_service_client.get_all_txos_for_account(account_id).values():
         print("{}: {} MOB (spent @ {})".format(txo["txo_id_hex"], mobilecoin.pmob2mob(txo["value_pmob"]), txo["spent_block_index"]))
-
 
 
 @app.cli.command("split-txos")
@@ -171,10 +170,9 @@ def split_txos(value, count):
                 sys.stdout.write(".")
                 sys.stdout.flush()
             else:
-                raise Exception("unaccepted tx status: {}",format(response))
+                raise Exception("unaccepted tx status: {}", format(response))
 
         print("Succeeded :)")
-
 
         outputs_generated += num_outputs
         i += 1
