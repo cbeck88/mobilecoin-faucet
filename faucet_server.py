@@ -24,8 +24,8 @@ app.secret_key = "very extremely secret guys"
 
 PAYMENT_AMOUNT = 0.01
 # Set this to None to disable captchas
-#HCAPTCHA_SITE_KEY = None
-HCAPTCHA_SITE_KEY = "d1986f6b-0e08-4980-a6dd-00f36484f80c"
+HCAPTCHA_SITE_KEY = None
+#HCAPTCHA_SITE_KEY = "d1986f6b-0e08-4980-a6dd-00f36484f80c"
 HCAPTCHA_SECRET = "0xa43F7aA369D873B361CE50EDf536ceD114EE274b"
 
 @app.route("/", methods=["GET", "POST"])

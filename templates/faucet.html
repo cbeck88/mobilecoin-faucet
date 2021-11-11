@@ -5,14 +5,27 @@
     <link rel="stylesheet" href="https://mobilecoin.com/_next/static/css/02d2376ba30a2ef5988b.css" data-n-g="">
     <link rel="stylesheet" href="https://mobilecoin.com/_next/static/css/fc7b720e936d86a19873.css" data-n-p="">
 
+    <style>
 
+    body {
+      background-color: black;
+      color: black;
+      font-family: 'Work Sans', 'Titillium Web', 'Open Sans', 'Helvetica', sans-serif;
+    }
+
+    ul {
+        position: fixed;
+        color: white;
+        filter: drop-shadow(30px 10px 4px #4444dd);
+    }
+    </style>
   </head>
   <body>
     {% with messages = get_flashed_messages() %}
       {% if messages %}
         <ul>
         {% for message in messages %}
-          <li>{{ message }}</li>
+          <li><b>{{ message }}</b></li>
         {% endfor %}
         </ul>
       {% endif %}
@@ -34,6 +47,5 @@
         </form>
 
     </div></div></div></div></div></div></div></div>
-
   </body>
 </html>
