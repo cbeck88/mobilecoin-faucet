@@ -1,0 +1,25 @@
+<!doctype html>
+<html>
+  <head>
+    <title>MobileCoin Faucet</title>
+  </head>
+  <body>
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <ul>
+        {% for message in messages %}
+          <li>{{ message }}</li>
+        {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+
+    <p>Hey kid, you want some magic internet money? What's your MobileCoin address?</p>
+    <form action="/" method="POST">
+        <textarea id="address" name="address" rows="5" cols="100"></textarea>
+        <br />
+        <input type="submit" value="Pay me" />
+    </form>
+
+  </body>
+</html>

@@ -12,3 +12,11 @@ Technical overview
 * The amount of mob sent is a configurable parameter, but probably slightly larger
 than the fee, like .01 MOB
 * We will add options for abuse prevention features
+
+
+Running the server
+------------------
+
+```
+FLASK_APP=faucet_server flask run
+```
