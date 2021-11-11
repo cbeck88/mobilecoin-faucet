@@ -180,4 +180,3 @@ def split_txos(value, count):
 
         outputs_generated += num_outputs
         i += 1
->>>>>>> split-txos
