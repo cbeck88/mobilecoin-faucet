@@ -1,0 +1,3 @@
+[submodule "full-service"]
+	path = full-service
+	url = git@github.com:mobilecoinofficial/full-service.git
