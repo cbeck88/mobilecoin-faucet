@@ -48,7 +48,10 @@ def faucet():
         r = full_service_client.build_and_submit_transaction(account_id, PAYMENT_AMOUNT, address)
         print(r)
 
-        flash("Okay, I paid you {} MOB at {}. You happy now?".format(PAYMENT_AMOUNT, address))
+        if r.failure_code:
+            flash("Full service error: {}: {}".format(r.failure_code, r.failure_message))
+        else:
+            flash("Okay, I paid you {} MOB at {}. You happy now?".format(PAYMENT_AMOUNT, address))
         return redirect(url_for("faucet"))
     else:
         return render_template('faucet.html', hcaptcha_site_key=HCAPTCHA_SITE_KEY)
