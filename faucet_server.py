@@ -1,5 +1,5 @@
 import sys, os
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'full-service', 'cli'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "full-service", "cli"))
 
 
 import click
@@ -100,17 +100,21 @@ def split_txos(value, count):
     total_amount_needed = (utxo_value_pmob * count) + (min_fee * num_txs_needed)
     print("Total amount needed in MOB:", mobilecoin.pmob2mob(total_amount_needed))
 
-    # See if we can find an unspent txo that is big enough for our purpose
-    candidate_txos = full_service_client.get_all_txos_for_account(account_id).values()
-    suitable_txos = [txo for txo in candidate_txos if not txo["spent_block_index"] and int(txo["value_pmob"]) >= total_amount_needed]
-    if not suitable_txos:
-        raise Exception("Failed to find a suitable txo to split")
-
-    input_txo = suitable_txos[0]
     outputs_generated = 0
     i = 0
     while outputs_generated < count:
-        num_outputs = max(15, count - outputs_generated)
+        num_outputs = min(15, count - outputs_generated)
+
+        amount_needed = (utxo_value_pmob * num_outputs) + min_fee
+
+        # See if we can find an unspent txo that is big enough for our purpose
+        candidate_txos = full_service_client.get_all_txos_for_account(account_id).values()
+        suitable_txos = [txo for txo in candidate_txos if not txo["spent_block_index"] and int(txo["value_pmob"]) >= amount_needed]
+        if not suitable_txos:
+            raise Exception("Failed to find a suitable txo to split")
+
+        input_txo = suitable_txos[0]
+
         print("Iteration {}: generating {} outputs from txo {} ({} MOB)".format(
             i,
             num_outputs,
@@ -132,9 +136,9 @@ def split_txos(value, count):
             }
         })
 
-        transaction_log_id = r['transaction_log']['transaction_log_id']
-        print('    TX {} submitted @ block {}'.format(transaction_log_id, r['transaction_log']['submitted_block_index']))
-        print('    ', end='')
+        transaction_log_id = r["transaction_log"]["transaction_log_id"]
+        print("    TX {} submitted @ block {}".format(transaction_log_id, r["transaction_log"]["submitted_block_index"]))
+        print("    ", end="")
 
         while True:
             response = full_service_client._req({
@@ -143,15 +147,16 @@ def split_txos(value, count):
                     "transaction_log_id": transaction_log_id,
                 }
             })
-            status = response['transaction_log']['status']
-            if status == 'tx_status_succeeded':
+            status = response["transaction_log"]["status"]
+            if status == "tx_status_succeeded":
                 break
-            elif status == 'tx_status_pending':
-                print('.', end='')
+            elif status == "tx_status_pending":
+                sys.stdout.write(".")
+                sys.stdout.flush()
             else:
-                raise Exception('unaccepted tx status: {}',format(response))
+                raise Exception("unaccepted tx status: {}",format(response))
 
-        print('Succeeded :)')
+        print("Succeeded :)")
 
 
         outputs_generated += num_outputs
