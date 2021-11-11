@@ -2,6 +2,19 @@
 <html>
   <head>
     <title>MobileCoin Faucet</title>
+    <style>
+
+    body {
+      background-color: black;
+      color: white;
+      font-family: 'Work Sans', 'Titillium Web', 'Open Sans', 'Helvetica', sans-serif;
+    }
+
+    ul {
+        position: fixed;
+        filter: drop-shadow(30px 10px 4px #4444dd);
+    }
+    </style>
   </head>
   <body>
     {% with messages = get_flashed_messages() %}
@@ -14,6 +27,7 @@
       {% endif %}
     {% endwith %}
 
+    <center>
     <p>Hey kid, you want some magic internet money? What's your MobileCoin address?</p>
     <form action="/" method="POST">
         {% if hcaptcha_site_key %}
@@ -25,6 +39,6 @@
         <br />
         <input type="submit" value="Pay me" />
     </form>
-
+    </center>
   </body>
 </html>
