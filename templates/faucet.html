@@ -58,19 +58,22 @@
 
     <br>
     <div class="width"><div class="gradient-border"><div class="gradient-border-inner"><div class="gradient-border"><div class="gradient-border-inner"><div class="gradient-border"><div class="gradient-border-inner"><div class="">
+        <img src="/static/mobilecoin-faucet.png" style="height: 90px; margin: 10px auto 0 auto;">
+
         <p><strong>{{prompt}} ( ͡° ͜ʖ ͡°)</strong></p>
         <form action="{{form_action}}" method="POST">
-            {% if hcaptcha_site_key %}
-                <div class="h-captcha" data-sitekey="{{hcaptcha_site_key}}"></div>
-                <script src="https://js.hcaptcha.com/1/api.js" async defer></script>
-            {% endif %}
 
-            <textarea id="address" name="address" rows="5" style="border: 1px #000 solid; width: 100%;"></textarea>
+            <textarea id="address" name="address" rows="4" style="border: 1px #000 solid; width: 100%; font-size: 10pt"></textarea>
             <br />
             <button type="submit" class="button" id="pay-me">
                 Pay me
                 <img src="/static/ajax-loader.gif" style="display: none;">
             </button>
+
+            {% if hcaptcha_site_key %}
+                <div class="h-captcha" data-sitekey="{{hcaptcha_site_key}}" style="margin: 10px 0;"></div>
+                <script src="https://js.hcaptcha.com/1/api.js" async defer></script>
+            {% endif %}
         </form>
 
     </div></div></div></div></div></div></div></div>
