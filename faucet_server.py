@@ -52,6 +52,7 @@ def faucet():
             if 'InvalidPublicAddress' in e.response['error']['data']['server_error']:
                 flash("It didn't work. You give me a funny address or somethin?")
             else:
+                print(e)
                 flash("It didn't work, and I dunno why.")
             return redirect(url_for("faucet"))
 
