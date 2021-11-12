@@ -23,7 +23,7 @@ DATABASE = "faucet.db"
 FULL_SERVICE_URL = os.environ.get("FULL_SERVICE", "http://localhost:9090/wallet")
 full_service_client = mobilecoin.Client(FULL_SERVICE_URL)
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='static')
 app.secret_key = "very extremely secret guys"
 
 PAYMENT_AMOUNT = 0.01
@@ -264,7 +264,7 @@ def txos():
 
 
 @app.cli.command("split-txos")
-@click.option("--value", default=0.1, help="Value in MOB, excluding fees, to send", type=float)
+@click.option("--value", default=PAYMENT_AMOUNT, help="Value in MOB, excluding fees, to send", type=float)
 @click.option("--count", help="The amount of UTXOs we want to end up with", type=int)
 def split_txos(value, count):
     account_id = get_account_id()
