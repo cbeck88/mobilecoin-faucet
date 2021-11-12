@@ -34,7 +34,7 @@ HCAPTCHA_SECRET = "0xa43F7aA369D873B361CE50EDf536ceD114EE274b"
 # Set this to None to disable rate limiting
 COOLDOWN_PERIOD_SECONDS = 30
 # This is how many times you can use the faucet per cooldown period
-COOLDOWN_MAX_PAYMENTS = 3
+COOLDOWN_MAX_PAYMENTS = 2
 
 def get_db():
     if 'db' not in g:
