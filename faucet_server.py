@@ -99,7 +99,7 @@ def get_spendable_txo():
     finally:
         TXO_LOCK.release()
 
-
+# The public-facing, rate limited version of the faucet
 @app.route("/", methods=["GET", "POST"])
 def faucet():
     if request.headers.getlist("X-Forwarded-For"):
@@ -158,6 +158,7 @@ def faucet():
     else:
         return render_template('faucet.html', hcaptcha_site_key=HCAPTCHA_SITE_KEY, prompt="Hey kid, you want some magic internet money? What's your MobileCoin address?", form_action="/", mob_amount=PAYMENT_AMOUNT, cooldown_seconds=COOLDOWN_PERIOD_SECONDS, mob_address=get_pubaddr())
 
+# The internal-facing version of the faucet, which is not rate limited and supports batch funding of test accounts
 @app.route("/batch", methods=["GET", "POST"])
 def batch():
     if request.method == 'POST':
@@ -184,7 +185,7 @@ def batch():
             flash("Failed to pay {}".format(failures))
         return redirect(url_for("batch"))
     else:
-        return render_template('faucet.html', hcaptcha_site_key=HCAPTCHA_SITE_KEY, prompt="Batch pay any number of mobilecoin addresses", form_action="/batch", mob_amount = PAYMENT_AMOUNT, cooldown_seconds = COOLDOWN_PERIOD_SECONDS, mob_address = get_pubaddr())
+        return render_template('faucet.html', hcaptcha_site_key=None, prompt="Batch pay any number of mobilecoin addresses", form_action="/batch", mob_amount = PAYMENT_AMOUNT, cooldown_seconds = COOLDOWN_PERIOD_SECONDS, mob_address = get_pubaddr())
 
 # Try to send a payment to an address, given a db connection
 #
