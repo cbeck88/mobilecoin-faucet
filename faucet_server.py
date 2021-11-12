@@ -32,7 +32,7 @@ PAYMENT_AMOUNT = 0.01
 HCAPTCHA_SITE_KEY = "d1986f6b-0e08-4980-a6dd-00f36484f80c"
 HCAPTCHA_SECRET = "0xa43F7aA369D873B361CE50EDf536ceD114EE274b"
 # Set this to None to disable rate limiting
-COOLDOWN_PERIOD_SECONDS = 30
+COOLDOWN_PERIOD_SECONDS = 600
 # This is how many times you can use the faucet per cooldown period
 COOLDOWN_MAX_PAYMENTS = 2
 
@@ -102,6 +102,12 @@ def get_spendable_txo():
 
 @app.route("/", methods=["GET", "POST"])
 def faucet():
+    if request.headers.getlist("X-Forwarded-For"):
+       ip = request.headers.getlist("X-Forwarded-For")[0]
+    else:
+        ip = request.remote_addr
+    print('IP:', ip)
+
     if request.method == 'POST':
         if HCAPTCHA_SITE_KEY:
             # Verify captcha
@@ -110,7 +116,7 @@ def faucet():
                 "secret": HCAPTCHA_SECRET,
                 "response": token,
                 "sitekey": HCAPTCHA_SITE_KEY,
-                "remoteip": request.remote_addr,
+                "remoteip": ip,
             }
             response = requests.post("https://hcaptcha.com/siteverify", params)
             if not response.json()['success']:
@@ -125,7 +131,7 @@ def faucet():
         if COOLDOWN_PERIOD_SECONDS:
             try:
                 cursor = db.cursor()
-                cursor.execute("SELECT * FROM activity WHERE ip_address = ? AND (CAST(strftime('%s', CURRENT_TIMESTAMP) as integer) - CAST(strftime('%s', created) as integer)) < ?;", (request.remote_addr, COOLDOWN_PERIOD_SECONDS))
+                cursor.execute("SELECT * FROM activity WHERE ip_address = ? AND (CAST(strftime('%s', CURRENT_TIMESTAMP) as integer) - CAST(strftime('%s', created) as integer)) < ?;", (ip, COOLDOWN_PERIOD_SECONDS))
                 ip_matches = cursor.fetchall()
                 print(ip_matches)
                 if len(ip_matches) >= COOLDOWN_MAX_PAYMENTS:
@@ -146,7 +152,7 @@ def faucet():
         print("attempting to send payment")
 
         # Try to send the payment
-        if send_payment(address, db) == 1:
+        if send_payment(address, db, ip) == 1:
             flash("Okay, I paid you {} MOB. Don't spend it all in one place.".format(PAYMENT_AMOUNT))
         return redirect(url_for("faucet"))
     else:
@@ -184,7 +190,7 @@ def batch():
 #
 # Returns 1 if payment succeeded, 0 if not.
 # Flashes error messages but not success messages to allow the batch mode to have a different success message
-def send_payment(address, db):
+def send_payment(address, db, ip):
     account_id = get_account_id()
     try:
         spendable_txo = get_spendable_txo()
@@ -215,7 +221,7 @@ def send_payment(address, db):
             value_pmob = int(r["transaction_log"]["value_pmob"])
             print("value pmob = {}".format(value_pmob))
             cursor = db.cursor()
-            cursor.execute("INSERT INTO activity (ip_address, mob_address, amount_pmob_sent) VALUES (?,?,?)", (request.remote_addr, address, value_pmob))
+            cursor.execute("INSERT INTO activity (ip_address, mob_address, amount_pmob_sent) VALUES (?,?,?)", (ip, address, value_pmob))
             db.commit()
         except Exception as e:
             print("Database error: {}".format(e))
