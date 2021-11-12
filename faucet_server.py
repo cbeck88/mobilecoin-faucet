@@ -64,7 +64,6 @@ def init_db_command():
 
 
 app.teardown_appcontext(close_db)
-app.cli.add_command(init_db_command)
 
 TXO_LOCK = threading.Lock()
 PICKED_TXO_IDS = []
@@ -136,7 +135,6 @@ def faucet():
             else:
                 print(e)
                 flash("It didn't work, and I dunno why.")
-            spendable_txo = get_spendable_txo()
 
         except Exception as e:
             print(e)
