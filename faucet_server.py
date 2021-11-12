@@ -31,6 +31,10 @@ PAYMENT_AMOUNT = 0.01
 HCAPTCHA_SITE_KEY = None
 #HCAPTCHA_SITE_KEY = "d1986f6b-0e08-4980-a6dd-00f36484f80c"
 HCAPTCHA_SECRET = "0xa43F7aA369D873B361CE50EDf536ceD114EE274b"
+# Set tihs to None to disable rate limiting
+COOLDOWN_PERIOD_SECONDS = 30
+# This is how many times you can use the faucet per cooldown period
+COOLDOWN_MAX_PAYMENTS = 3
 
 def get_db():
     if 'db' not in g:
@@ -113,10 +117,34 @@ def faucet():
                 flash('You must complete the CAPTCHA to receive a payment')
                 return redirect(url_for("faucet"))
 
+        address = request.form['address']
+
         # Check rate limit for IP
         db = get_db()
 
-        address = request.form['address']
+        try:
+            cursor = db.cursor()
+            cursor.execute("SELECT * FROM activity WHERE ip_address = ? AND (CAST(strftime('%s', CURRENT_TIMESTAMP) as integer) - CAST(strftime('%s', created) as integer)) < ?;", (request.remote_addr, COOLDOWN_PERIOD_SECONDS))
+            ip_matches = cursor.fetchall()
+            print(ip_matches)
+            if len(ip_matches) >= COOLDOWN_MAX_PAYMENTS:
+                flash("Try again later, kid")
+                return redirect(url_for("faucet"))
+
+            cursor.execute("SELECT * FROM activity WHERE mob_address = ? AND (CAST(strftime('%s', CURRENT_TIMESTAMP) as integer) - CAST(strftime('%s', created) as integer)) < ?;", (address, COOLDOWN_PERIOD_SECONDS))
+            addr_matches = cursor.fetchall()
+            print(addr_matches)
+            if len(addr_matches) >= COOLDOWN_MAX_PAYMENTS:
+                flash("Try again later, kid")
+                return redirect(url_for("faucet"))
+        except Exception as e:
+            print(e)
+            flash("Hmm I'm forgetting something... what was that?")
+            return redirect(url_for("faucet"))
+
+        print("attempting to send payment")
+
+        # Try to send the payment
         if send_payment(address, db) == 1:
             flash("Okay, I paid you {} MOB at {}. You happy now?".format(PAYMENT_AMOUNT, address))
         return redirect(url_for("faucet"))
@@ -183,11 +211,14 @@ def send_payment(address, db):
         # Happy path
         # log in db
         try:
+            value_pmob = int(r["transaction_log"]["value_pmob"])
+            print("value pmob = {}".format(value_pmob))
             cursor = db.cursor()
-            cursor.execute("INSERT INTO activity (ip_address, mob_address, amount_pmob_sent) VALUES (?,?,?)", (request.remote_addr, address, int(r["value_pmob"])))
+            cursor.execute("INSERT INTO activity (ip_address, mob_address, amount_pmob_sent) VALUES (?,?,?)", (request.remote_addr, address, value_pmob))
             db.commit()
         except Exception as e:
             print("Database error: {}".format(e))
+            print(r)
         return 1
     return 0
 
