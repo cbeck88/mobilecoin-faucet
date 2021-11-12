@@ -147,10 +147,10 @@ def faucet():
 
         # Try to send the payment
         if send_payment(address, db) == 1:
-            flash("Okay, I paid you {} MOB. You happy now, punk?".format(PAYMENT_AMOUNT))
+            flash("Okay, I paid you {} MOB. Don't spend it all in one place.".format(PAYMENT_AMOUNT))
         return redirect(url_for("faucet"))
     else:
-        return render_template('faucet.html', hcaptcha_site_key=HCAPTCHA_SITE_KEY, prompt="Hey kid, you want some magic internet money? What's your MobileCoin address?", form_action="/", mob_amount = PAYMENT_AMOUNT, cooldown_seconds = COOLDOWN_PERIOD_SECONDS, mob_address = get_pubaddr())
+        return render_template('faucet.html', hcaptcha_site_key=HCAPTCHA_SITE_KEY, prompt="Hey kid, you want some magic internet money? What's your MobileCoin address?", form_action="/", mob_amount=PAYMENT_AMOUNT, cooldown_seconds=COOLDOWN_PERIOD_SECONDS, mob_address=get_pubaddr())
 
 @app.route("/batch", methods=["GET", "POST"])
 def batch():
