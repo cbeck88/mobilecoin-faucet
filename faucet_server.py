@@ -136,7 +136,7 @@ def faucet():
                 addr_matches = cursor.fetchall()
                 print(addr_matches)
                 if len(addr_matches) >= COOLDOWN_MAX_PAYMENTS:
-                    flash("Try again later, kid")
+                    flash("Whoa, take it easy there, kid. Maybe try again later, huh?")
                     return redirect(url_for("faucet"))
             except Exception as e:
                 print(e)
@@ -147,7 +147,7 @@ def faucet():
 
         # Try to send the payment
         if send_payment(address, db) == 1:
-            flash("Okay, I paid you, ya punk. You happy now?".format(PAYMENT_AMOUNT, address))
+            flash("Okay, I paid you {} MOB. You happy now, punk?".format(PAYMENT_AMOUNT))
         return redirect(url_for("faucet"))
     else:
         return render_template('faucet.html', hcaptcha_site_key=HCAPTCHA_SITE_KEY, prompt="Hey kid, you want some magic internet money? What's your MobileCoin address?", form_action="/", mob_amount = PAYMENT_AMOUNT, cooldown_seconds = COOLDOWN_PERIOD_SECONDS, mob_address = get_pubaddr())
