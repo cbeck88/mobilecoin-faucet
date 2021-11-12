@@ -121,7 +121,7 @@ def faucet():
             flash("Okay, I paid you {} MOB at {}. You happy now?".format(PAYMENT_AMOUNT, address))
         return redirect(url_for("faucet"))
     else:
-        return render_template('faucet.html', hcaptcha_site_key=HCAPTCHA_SITE_KEY)
+        return render_template('faucet.html', hcaptcha_site_key=HCAPTCHA_SITE_KEY, prompt="Hey kid, you want some magic internet money? What's your MobileCoin address?", form_action="/")
 
 @app.route("/batch", methods=["GET", "POST"])
 def batch():
@@ -149,7 +149,7 @@ def batch():
             flash("Failed to pay {}".format(failures))
         return redirect(url_for("batch"))
     else:
-        return render_template('batch.html', hcaptcha_site_key=HCAPTCHA_SITE_KEY)
+        return render_template('faucet.html', hcaptcha_site_key=HCAPTCHA_SITE_KEY, prompt="Batch pay any number of mobilecoin addresses", form_action="/batch")
 
 # Try to send a payment to an address, given a db connection
 #
