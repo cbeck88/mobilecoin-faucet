@@ -89,7 +89,7 @@ def get_spendable_txo():
         ]
 
         if not suitable_txos:
-            raise Exception("all outta funds")
+            raise Exception("Oops, it turns out I'm broke. Better luck next time.")
 
         txo = suitable_txos[0]
         PICKED_TXO_IDS.append(txo["txo_id_hex"])
@@ -206,7 +206,7 @@ def send_payment(address, db):
 
     except Exception as e:
         print(e)
-        flash("Exception: {}".format(e))
+        flash("{}".format(e))
 
     else:
         # Happy path
