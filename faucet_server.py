@@ -80,7 +80,10 @@ def get_spendable_txo():
     try:
         suitable_txos = [
             txo for txo in candidate_txos
-            if not txo["spent_block_index"] and int(txo["value_pmob"]) >= min_amount and txo["txo_id_hex"] not in PICKED_TXO_IDS
+            if (not txo["spent_block_index"]
+                and int(txo["value_pmob"]) >= min_amount
+                and txo["txo_id_hex"] not in PICKED_TXO_IDS
+                and txo["account_status_map"][account_id]["txo_status"] == "txo_status_unspent")
         ]
 
         if not suitable_txos:
@@ -222,7 +225,13 @@ def split_txos(value, count):
 
         # See if we can find an unspent txo that is big enough for our purpose
         candidate_txos = full_service_client.get_all_txos_for_account(account_id).values()
-        suitable_txos = [txo for txo in candidate_txos if not txo["spent_block_index"] and int(txo["value_pmob"]) >= amount_needed]
+        suitable_txos = [
+            txo for txo in candidate_txos if (
+                not txo["spent_block_index"]
+                and int(txo["value_pmob"]) >= amount_needed
+                and txo["account_status_map"][account_id]["txo_status"] == "txo_status_unspent"
+
+            )]
         if not suitable_txos:
             raise Exception("Failed to find a suitable txo to split")
 
