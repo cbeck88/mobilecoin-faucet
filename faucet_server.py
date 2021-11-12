@@ -62,9 +62,11 @@ def init_db_command():
     init_db()
     click.echo('Initialized the database.')
 
+
 app.teardown_appcontext(close_db)
 app.cli.add_command(init_db_command)
 
+<<<<<<< HEAD
 TXO_LOCK = threading.Lock()
 PICKED_TXO_IDS = []
 def get_spendable_txo():

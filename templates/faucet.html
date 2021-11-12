@@ -16,6 +16,8 @@
     ul {
         color: white;
         filter: drop-shadow(30px 10px 4px #4444dd);
+        width: 500px;
+        margin: 10px auto;
     }
     </style>
   </head>
@@ -41,7 +43,7 @@
                 <script src="https://js.hcaptcha.com/1/api.js" async defer></script>
             {% endif %}
 
-            <textarea id="address" name="address" rows="5" cols="100" style="border: 1px #000 solid"></textarea>
+            <textarea id="address" name="address" rows="5" style="border: 1px #000 solid; width: 100%;"></textarea>
             <br />
             <input type="submit" value="Pay me" class="button" />
         </form>
