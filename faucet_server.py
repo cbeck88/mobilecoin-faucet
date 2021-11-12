@@ -28,10 +28,10 @@ app.secret_key = "very extremely secret guys"
 
 PAYMENT_AMOUNT = 0.01
 # Set this to None to disable captchas
-HCAPTCHA_SITE_KEY = None
-#HCAPTCHA_SITE_KEY = "d1986f6b-0e08-4980-a6dd-00f36484f80c"
+#HCAPTCHA_SITE_KEY = None
+HCAPTCHA_SITE_KEY = "d1986f6b-0e08-4980-a6dd-00f36484f80c"
 HCAPTCHA_SECRET = "0xa43F7aA369D873B361CE50EDf536ceD114EE274b"
-# Set tihs to None to disable rate limiting
+# Set this to None to disable rate limiting
 COOLDOWN_PERIOD_SECONDS = 30
 # This is how many times you can use the faucet per cooldown period
 COOLDOWN_MAX_PAYMENTS = 3
@@ -122,25 +122,26 @@ def faucet():
         # Check rate limit for IP
         db = get_db()
 
-        try:
-            cursor = db.cursor()
-            cursor.execute("SELECT * FROM activity WHERE ip_address = ? AND (CAST(strftime('%s', CURRENT_TIMESTAMP) as integer) - CAST(strftime('%s', created) as integer)) < ?;", (request.remote_addr, COOLDOWN_PERIOD_SECONDS))
-            ip_matches = cursor.fetchall()
-            print(ip_matches)
-            if len(ip_matches) >= COOLDOWN_MAX_PAYMENTS:
-                flash("Try again later, kid")
-                return redirect(url_for("faucet"))
+        if COOLDOWN_PERIOD_SECONDS:
+            try:
+                cursor = db.cursor()
+                cursor.execute("SELECT * FROM activity WHERE ip_address = ? AND (CAST(strftime('%s', CURRENT_TIMESTAMP) as integer) - CAST(strftime('%s', created) as integer)) < ?;", (request.remote_addr, COOLDOWN_PERIOD_SECONDS))
+                ip_matches = cursor.fetchall()
+                print(ip_matches)
+                if len(ip_matches) >= COOLDOWN_MAX_PAYMENTS:
+                    flash("Try again later, kid")
+                    return redirect(url_for("faucet"))
 
-            cursor.execute("SELECT * FROM activity WHERE mob_address = ? AND (CAST(strftime('%s', CURRENT_TIMESTAMP) as integer) - CAST(strftime('%s', created) as integer)) < ?;", (address, COOLDOWN_PERIOD_SECONDS))
-            addr_matches = cursor.fetchall()
-            print(addr_matches)
-            if len(addr_matches) >= COOLDOWN_MAX_PAYMENTS:
-                flash("Try again later, kid")
+                cursor.execute("SELECT * FROM activity WHERE mob_address = ? AND (CAST(strftime('%s', CURRENT_TIMESTAMP) as integer) - CAST(strftime('%s', created) as integer)) < ?;", (address, COOLDOWN_PERIOD_SECONDS))
+                addr_matches = cursor.fetchall()
+                print(addr_matches)
+                if len(addr_matches) >= COOLDOWN_MAX_PAYMENTS:
+                    flash("Try again later, kid")
+                    return redirect(url_for("faucet"))
+            except Exception as e:
+                print(e)
+                flash("Hmm I'm forgetting something... what was that?")
                 return redirect(url_for("faucet"))
-        except Exception as e:
-            print(e)
-            flash("Hmm I'm forgetting something... what was that?")
-            return redirect(url_for("faucet"))
 
         print("attempting to send payment")
 
