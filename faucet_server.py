@@ -117,7 +117,7 @@ def faucet():
                 flash('You must complete the CAPTCHA to receive a payment')
                 return redirect(url_for("faucet"))
 
-        address = request.form['address']
+        address = request.form['address'].strip()
 
         # Check rate limit for IP
         db = get_db()
@@ -147,7 +147,7 @@ def faucet():
 
         # Try to send the payment
         if send_payment(address, db) == 1:
-            flash("Okay, I paid you {} MOB at {}. You happy now?".format(PAYMENT_AMOUNT, address))
+            flash("Okay, I paid you, ya punk. You happy now?".format(PAYMENT_AMOUNT, address))
         return redirect(url_for("faucet"))
     else:
         return render_template('faucet.html', hcaptcha_site_key=HCAPTCHA_SITE_KEY, prompt="Hey kid, you want some magic internet money? What's your MobileCoin address?", form_action="/", mob_amount = PAYMENT_AMOUNT, cooldown_seconds = COOLDOWN_PERIOD_SECONDS, mob_address = "XXX")
