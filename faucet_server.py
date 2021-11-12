@@ -28,7 +28,7 @@ app.secret_key = "very extremely secret guys"
 PAYMENT_AMOUNT = 0.01
 # Set this to None to disable captchas
 HCAPTCHA_SITE_KEY = None
-# HCAPTCHA_SITE_KEY = "d1986f6b-0e08-4980-a6dd-00f36484f80c"
+#HCAPTCHA_SITE_KEY = "d1986f6b-0e08-4980-a6dd-00f36484f80c"
 HCAPTCHA_SECRET = "0xa43F7aA369D873B361CE50EDf536ceD114EE274b"
 
 def get_db():
@@ -105,7 +105,13 @@ def faucet():
 
         # Happy path
         # log in db
-        db.cursor().execute("INSERT INTO activity VALUES (?,?,?)", request.remote_addr, address, int(r["value_pmob"]))         
+        try:
+            cursor = db.cursor()
+            cursor.execute("INSERT INTO activity (ip_address, mob_address, amount_pmob_sent) VALUES (?,?,?)", (request.remote_addr, address, int(r["value_pmob"])))
+            db.commit()
+            print("Should have written to db")
+        except Exception as e:
+            print("Database error: {}".format(e))
         flash("Okay, I paid you {} MOB at {}. You happy now?".format(PAYMENT_AMOUNT, address))
         return redirect(url_for("faucet"))
     else:
