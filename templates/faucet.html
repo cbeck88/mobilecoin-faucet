@@ -4,6 +4,16 @@
     <title>MobileCoin Faucet</title>
     <link rel="stylesheet" href="https://mobilecoin.com/_next/static/css/02d2376ba30a2ef5988b.css" data-n-g="">
     <link rel="stylesheet" href="https://mobilecoin.com/_next/static/css/fc7b720e936d86a19873.css" data-n-p="">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#pay-me').click(function(e) {
+                $(this).find('img').show();
+                $(this).prop('disabled', true);
+            })
+        })
+    </script>
+
 
     <style>
 
@@ -45,7 +55,10 @@
 
             <textarea id="address" name="address" rows="5" style="border: 1px #000 solid; width: 100%;"></textarea>
             <br />
-            <input type="submit" value="Pay me" class="button" />
+            <button type="submit" class="button" id="pay-me">
+                Pay me
+                <img src="/static/ajax-loader.gif" style="display: none;">
+            </button>
         </form>
 
     </div></div></div></div></div></div></div></div>

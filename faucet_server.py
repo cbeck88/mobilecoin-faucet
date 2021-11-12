@@ -23,7 +23,7 @@ DATABASE = "faucet.db"
 FULL_SERVICE_URL = os.environ.get("FULL_SERVICE", "http://localhost:9090/wallet")
 full_service_client = mobilecoin.Client(FULL_SERVICE_URL)
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='static')
 app.secret_key = "very extremely secret guys"
 
 PAYMENT_AMOUNT = 0.01
