@@ -44,6 +44,9 @@ def faucet():
                 flash('You must complete the CAPTCHA to receive a payment')
                 return redirect(url_for("faucet"))
 
+        # Check rate limit for IP
+        db = get_db()
+
         account_id = get_account_id()
         address = request.form['address']
         try:
@@ -59,9 +62,14 @@ def faucet():
         print(r)
 
         if r["failure_code"]:
-            flash("Full service error: {}: {}".format(r["failure_code"], r["failure_message"]))
-        else:
-            flash("Okay, I paid you {} MOB at {}. You happy now?".format(PAYMENT_AMOUNT, address))
+            print(r)
+            flash("It didn't work, and I really don't know why")
+            return redirect(url_for("faucet"))
+
+        # Happy path
+        # log in db
+        db.cursor().execute("INSERT INTO activity VALUES (?,?,?)", request.remote_addr, address, int(r["value_pmob"]))         
+        flash("Okay, I paid you {} MOB at {}. You happy now?".format(PAYMENT_AMOUNT, address))
         return redirect(url_for("faucet"))
     else:
         return render_template('faucet.html', hcaptcha_site_key=HCAPTCHA_SITE_KEY)
