@@ -116,46 +116,80 @@ def faucet():
         # Check rate limit for IP
         db = get_db()
 
-        account_id = get_account_id()
         address = request.form['address']
-        try:
-            spendable_txo = get_spendable_txo()
-
-            r = full_service_client._req({
-                "method": "build_and_submit_transaction",
-                "params": {
-                    "account_id": account_id,
-                    "addresses_and_values": [(address, str(mobilecoin.mob2pmob(PAYMENT_AMOUNT)))],
-                    "input_txo_ids": [spendable_txo["txo_id_hex"]],
-                }
-            })
-        except WalletAPIError as e:
-            if 'InvalidPublicAddress' in e.response['error']['data']['server_error']:
-                flash("It didn't work. You give me a funny address or somethin?")
-            else:
-                print(e)
-                flash("It didn't work, and I dunno why.")
-
-        except Exception as e:
-            print(e)
-            flash("Exception: {}".format(e))
-            return redirect(url_for("faucet"))
-
-        else:
-            # Happy path
-            # log in db
-            try:
-                cursor = db.cursor()
-                cursor.execute("INSERT INTO activity (ip_address, mob_address, amount_pmob_sent) VALUES (?,?,?)", (request.remote_addr, address, int(r["value_pmob"])))
-                db.commit()
-                print("Should have written to db")
-            except Exception as e:
-                print("Database error: {}".format(e))
+        if send_payment(address, db) == 1:
             flash("Okay, I paid you {} MOB at {}. You happy now?".format(PAYMENT_AMOUNT, address))
         return redirect(url_for("faucet"))
     else:
         return render_template('faucet.html', hcaptcha_site_key=HCAPTCHA_SITE_KEY)
 
+@app.route("/batch", methods=["GET", "POST"])
+def batch():
+    if request.method == 'POST':
+        db = get_db()
+
+        addresses = request.form['address'].split()
+        successes = []
+        failures = []
+        print(addresses)
+        for address in addresses:
+            if send_payment(address, db) == 1:
+                successes.append(address)
+            else:
+                failures.append(address)
+
+        print("Successes: {}, Failures: {}".format(len(successes), len(failures)))
+
+        if not failures:
+            flash("Paid all {} addresses successfully".format(len(successes)))
+        elif not successes:
+            flash("All payments failed.")
+        else:
+            flash("Successfully paid {}".format(successes))
+            flash("Failed to pay {}".format(failures))
+        return redirect(url_for("batch"))
+    else:
+        return render_template('batch.html', hcaptcha_site_key=HCAPTCHA_SITE_KEY)
+
+# Try to send a payment to an address, given a db connection
+#
+# Returns 1 if payment succeeded, 0 if not.
+# Flashes error messages but not success messages to allow the batch mode to have a different success message
+def send_payment(address, db):
+    account_id = get_account_id()
+    try:
+        spendable_txo = get_spendable_txo()
+
+        r = full_service_client._req({
+            "method": "build_and_submit_transaction",
+            "params": {
+                "account_id": account_id,
+                "addresses_and_values": [(address, str(mobilecoin.mob2pmob(PAYMENT_AMOUNT)))],
+                "input_txo_ids": [spendable_txo["txo_id_hex"]],
+            }
+        })
+    except WalletAPIError as e:
+        if 'InvalidPublicAddress' in e.response['error']['data']['server_error']:
+            flash("It didn't work. You give me a funny address or somethin?")
+        else:
+            print(e)
+            flash("It didn't work, and I dunno why.")
+
+    except Exception as e:
+        print(e)
+        flash("Exception: {}".format(e))
+
+    else:
+        # Happy path
+        # log in db
+        try:
+            cursor = db.cursor()
+            cursor.execute("INSERT INTO activity (ip_address, mob_address, amount_pmob_sent) VALUES (?,?,?)", (request.remote_addr, address, int(r["value_pmob"])))
+            db.commit()
+        except Exception as e:
+            print("Database error: {}".format(e))
+        return 1
+    return 0
 
 def get_account_id():
     accounts = full_service_client.get_all_accounts()

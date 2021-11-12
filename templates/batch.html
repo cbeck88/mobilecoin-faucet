@@ -1,0 +1,53 @@
+<!doctype html>
+<html>
+  <head>
+    <title>MobileCoin Faucet</title>
+    <link rel="stylesheet" href="https://mobilecoin.com/_next/static/css/02d2376ba30a2ef5988b.css" data-n-g="">
+    <link rel="stylesheet" href="https://mobilecoin.com/_next/static/css/fc7b720e936d86a19873.css" data-n-p="">
+
+    <style>
+
+    body {
+      background-color: black;
+      color: black;
+      font-family: 'Work Sans', 'Titillium Web', 'Open Sans', 'Helvetica', sans-serif;
+    }
+
+    ul {
+        color: white;
+        filter: drop-shadow(30px 10px 4px #4444dd);
+        width: 500px;
+        margin: 10px auto;
+    }
+    </style>
+  </head>
+  <body>
+    {% with messages = get_flashed_messages() %}
+      <br>
+      {% if messages %}
+        <ul>
+        {% for message in messages %}
+          <li><b>{{ message }}</b></li>
+        {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+
+
+    <br>
+    <div class="width"><div class="gradient-border"><div class="gradient-border-inner"><div class="gradient-border"><div class="gradient-border-inner"><div class="gradient-border"><div class="gradient-border-inner"><div class="">
+        <p><strong>Batch pay any number of MobileCoin addresses</strong></p>
+        <form action="/batch" method="POST">
+            {% if hcaptcha_site_key %}
+                <div class="h-captcha" data-sitekey="{{hcaptcha_site_key}}"></div>
+                <script src="https://js.hcaptcha.com/1/api.js" async defer></script>
+            {% endif %}
+
+            <textarea id="address" name="address" rows="5" style="border: 1px #000 solid; width: 100%;"></textarea>
+            <br />
+            <input type="submit" value="Pay me" class="button" />
+        </form>
+
+    </div></div></div></div></div></div></div></div>
+  </body>
+</html>
