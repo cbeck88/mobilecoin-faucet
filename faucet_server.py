@@ -120,7 +120,7 @@ def faucet():
             }
             response = requests.post("https://hcaptcha.com/siteverify", params)
             if not response.json()['success']:
-                flash("What are you, some kinda computer? Don't you even know the difference between a bus and a train? Maybe you oughta click that little checkbox down there.")
+                flash("What are you, some kinda computer? Don't you even know the difference between a bus and a train? Maybe you oughta click that checkbox there.")
                 return redirect(url_for("faucet"))
 
         address = request.form['address'].strip()
