@@ -29,6 +29,18 @@
         width: 500px;
         margin: 10px auto;
     }
+
+    details {
+        color: white;
+    }
+
+    summary {
+        color: white;
+    }
+
+    small {
+        color: white;
+    }
     </style>
   </head>
   <body>
@@ -62,5 +74,20 @@
         </form>
 
     </div></div></div></div></div></div></div></div>
+    <br>
+    <center>
+    <details>
+    <summary> What is a faucet? </summary>
+    <p> A faucet is a website that distributes small amounts of cryptocurrency. </p>
+    <p> Many faucets have ads or require you to enter an email. </p>
+    <p> This faucet has no such stuff and let's you just try using the cryptocurrency. </p>
+    </details>
+    <details>
+    <summary> How much can I get? </summary>
+    This faucet will distribute {{mob_amount}} MOB every {{cooldown_seconds}} seconds.
+    </details>
+
+    <p> <small> Donate MOB to this faucet at {{mob_address}} </small> </p>
+    </center>
   </body>
 </html>
