@@ -18,8 +18,6 @@ from flask import (
     current_app,
 )
 
-from db import get_db
-
 DATABASE = "faucet.db"
 FULL_SERVICE_URL = os.environ.get("FULL_SERVICE", "http://localhost:9090/wallet")
 full_service_client = mobilecoin.Client(FULL_SERVICE_URL)
