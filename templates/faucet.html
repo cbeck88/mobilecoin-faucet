@@ -14,7 +14,6 @@
     }
 
     ul {
-        position: fixed;
         color: white;
         filter: drop-shadow(30px 10px 4px #4444dd);
     }
@@ -22,6 +21,7 @@
   </head>
   <body>
     {% with messages = get_flashed_messages() %}
+      <br>
       {% if messages %}
         <ul>
         {% for message in messages %}

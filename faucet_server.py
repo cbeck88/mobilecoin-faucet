@@ -47,15 +47,15 @@ def faucet():
         address = request.form['address']
         try:
             r = full_service_client.build_and_submit_transaction(account_id, PAYMENT_AMOUNT, address)
-        except e:
+        except Exception as e:
             print(e)
             flash("Exception: {}".format(e))
             return redirect(url_for("faucet"))
 
         print(r)
 
-        if r.failure_code:
-            flash("Full service error: {}: {}".format(r.["failure_code"], r.["failure_message"]))
+        if r["failure_code"]:
+            flash("Full service error: {}: {}".format(r["failure_code"], r["failure_message"]))
         else:
             flash("Okay, I paid you {} MOB at {}. You happy now?".format(PAYMENT_AMOUNT, address))
         return redirect(url_for("faucet"))
