@@ -150,7 +150,7 @@ def faucet():
             flash("Okay, I paid you, ya punk. You happy now?".format(PAYMENT_AMOUNT, address))
         return redirect(url_for("faucet"))
     else:
-        return render_template('faucet.html', hcaptcha_site_key=HCAPTCHA_SITE_KEY, prompt="Hey kid, you want some magic internet money? What's your MobileCoin address?", form_action="/", mob_amount = PAYMENT_AMOUNT, cooldown_seconds = COOLDOWN_PERIOD_SECONDS, mob_address = "XXX")
+        return render_template('faucet.html', hcaptcha_site_key=HCAPTCHA_SITE_KEY, prompt="Hey kid, you want some magic internet money? What's your MobileCoin address?", form_action="/", mob_amount = PAYMENT_AMOUNT, cooldown_seconds = COOLDOWN_PERIOD_SECONDS, mob_address = get_pubaddr())
 
 @app.route("/batch", methods=["GET", "POST"])
 def batch():
@@ -178,7 +178,7 @@ def batch():
             flash("Failed to pay {}".format(failures))
         return redirect(url_for("batch"))
     else:
-        return render_template('faucet.html', hcaptcha_site_key=HCAPTCHA_SITE_KEY, prompt="Batch pay any number of mobilecoin addresses", form_action="/batch", mob_amount = PAYMENT_AMOUNT, cooldown_seconds = COOLDOWN_PERIOD_SECONDS, mob_address = "XXX")
+        return render_template('faucet.html', hcaptcha_site_key=HCAPTCHA_SITE_KEY, prompt="Batch pay any number of mobilecoin addresses", form_action="/batch", mob_amount = PAYMENT_AMOUNT, cooldown_seconds = COOLDOWN_PERIOD_SECONDS, mob_address = get_pubaddr())
 
 # Try to send a payment to an address, given a db connection
 #
@@ -231,6 +231,10 @@ def get_account_id():
     else:
         raise Exception("No accounts returned from full-service")
 
+def get_pubaddr():
+    account_id = get_account_id()
+    account = full_service_client.get_account(account_id)
+    return account["main_address"]
 
 @app.cli.command("create-account")
 def create_account():
@@ -252,10 +256,7 @@ def balance():
 
 @app.cli.command("pubaddr")
 def pubaddr():
-    account_id = get_account_id()
-    account = full_service_client.get_account(account_id)
-    print(account["main_address"])
-
+    print(get_pubaddr())
 
 @app.cli.command("txos")
 def txos():
