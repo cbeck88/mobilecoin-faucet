@@ -3,6 +3,7 @@ import os
 import click
 import math
 import mobilecoin
+from mobilecoin.client import WalletAPIError
 import requests
 
 from flask import (
@@ -47,9 +48,11 @@ def faucet():
         address = request.form['address']
         try:
             r = full_service_client.build_and_submit_transaction(account_id, PAYMENT_AMOUNT, address)
-        except Exception as e:
-            print(e)
-            flash("Exception: {}".format(e))
+        except WalletAPIError as e:
+            if 'InvalidPublicAddress' in e.response['error']['data']['server_error']:
+                flash("It didn't work. You give me a funny address or somethin?")
+            else:
+                flash("It didn't work, and I dunno why.")
             return redirect(url_for("faucet"))
 
         print(r)
