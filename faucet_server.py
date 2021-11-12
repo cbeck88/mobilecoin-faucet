@@ -143,16 +143,17 @@ def faucet():
             flash("Exception: {}".format(e))
             return redirect(url_for("faucet"))
 
-        # Happy path
-        # log in db
-        try:
-            cursor = db.cursor()
-            cursor.execute("INSERT INTO activity (ip_address, mob_address, amount_pmob_sent) VALUES (?,?,?)", (request.remote_addr, address, int(r["value_pmob"])))
-            db.commit()
-            print("Should have written to db")
-        except Exception as e:
-            print("Database error: {}".format(e))
-        flash("Okay, I paid you {} MOB at {}. You happy now?".format(PAYMENT_AMOUNT, address))
+        else:
+            # Happy path
+            # log in db
+            try:
+                cursor = db.cursor()
+                cursor.execute("INSERT INTO activity (ip_address, mob_address, amount_pmob_sent) VALUES (?,?,?)", (request.remote_addr, address, int(r["value_pmob"])))
+                db.commit()
+                print("Should have written to db")
+            except Exception as e:
+                print("Database error: {}".format(e))
+            flash("Okay, I paid you {} MOB at {}. You happy now?".format(PAYMENT_AMOUNT, address))
         return redirect(url_for("faucet"))
     else:
         return render_template('faucet.html', hcaptcha_site_key=HCAPTCHA_SITE_KEY)
