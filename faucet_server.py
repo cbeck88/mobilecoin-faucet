@@ -6,6 +6,7 @@ import mobilecoin
 from mobilecoin.client import WalletAPIError
 import requests
 import sqlite3
+import threading
 
 from flask import (
     Flask,
@@ -64,6 +65,34 @@ def init_db_command():
 app.teardown_appcontext(close_db)
 app.cli.add_command(init_db_command)
 
+TXO_LOCK = threading.Lock()
+PICKED_TXO_IDS = []
+def get_spendable_txo():
+    account_id = get_account_id()
+    min_fee = int(full_service_client.get_network_status()["fee_pmob"])
+    min_amount = mobilecoin.mob2pmob(PAYMENT_AMOUNT) + min_fee
+
+    candidate_txos = full_service_client.get_all_txos_for_account(account_id).values()
+
+    TXO_LOCK.acquire()
+    try:
+        suitable_txos = [
+            txo for txo in candidate_txos
+            if not txo["spent_block_index"] and int(txo["value_pmob"]) >= min_amount and txo["txo_id_hex"] not in PICKED_TXO_IDS
+        ]
+
+        if not suitable_txos:
+            raise Exception("all outta funds")
+
+        txo = suitable_txos[0]
+        PICKED_TXO_IDS.append(txo["txo_id_hex"])
+
+        return txo
+
+    finally:
+        TXO_LOCK.release()
+
+
 @app.route("/", methods=["GET", "POST"])
 def faucet():
     if request.method == 'POST':
@@ -87,25 +116,32 @@ def faucet():
         account_id = get_account_id()
         address = request.form['address']
         try:
-            r = full_service_client.build_and_submit_transaction(account_id, PAYMENT_AMOUNT, address)
+            spendable_txo = get_spendable_txo()
+
+            r = full_service_client._req({
+                "method": "build_and_submit_transaction",
+                "params": {
+                    "account_id": account_id,
+                    "addresses_and_values": [(address, str(mobilecoin.mob2pmob(PAYMENT_AMOUNT)))],
+                    "input_txo_ids": [spendable_txo["txo_id_hex"]],
+                }
+            })
         except WalletAPIError as e:
             if 'InvalidPublicAddress' in e.response['error']['data']['server_error']:
                 flash("It didn't work. You give me a funny address or somethin?")
             else:
                 print(e)
                 flash("It didn't work, and I dunno why.")
-            return redirect(url_for("faucet"))
+            spendable_txo = get_spendable_txo()
 
-        print(r)
-
-        if r["failure_code"]:
-            print(r)
-            flash("It didn't work, and I really don't know why")
+        except Exception as e:
+            print(e)
+            flash("Exception: {}".format(e))
             return redirect(url_for("faucet"))
 
         # Happy path
         # log in db
-        db.cursor().execute("INSERT INTO activity VALUES (?,?,?)", request.remote_addr, address, int(r["value_pmob"]))         
+        ### db.cursor().execute("INSERT INTO activity VALUES (?,?,?)", request.remote_addr, address, int(r["transaction_log"]["value_pmob"]))
         flash("Okay, I paid you {} MOB at {}. You happy now?".format(PAYMENT_AMOUNT, address))
         return redirect(url_for("faucet"))
     else:
