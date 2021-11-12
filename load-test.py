@@ -28,8 +28,6 @@ def worker():
 
         print("Successes: {}       Failures: {}".format(success, fail))
 
-        time.sleep(1)
-
 
 for _ in range(CONCURRENCY):
     w = Thread(target=worker)

@@ -139,10 +139,11 @@ def faucet():
             flash("Exception: {}".format(e))
             return redirect(url_for("faucet"))
 
-        # Happy path
-        # log in db
-        ### db.cursor().execute("INSERT INTO activity VALUES (?,?,?)", request.remote_addr, address, int(r["transaction_log"]["value_pmob"]))
-        flash("Okay, I paid you {} MOB at {}. You happy now?".format(PAYMENT_AMOUNT, address))
+        else:
+            # Happy path
+            # log in db
+            ### db.cursor().execute("INSERT INTO activity VALUES (?,?,?)", request.remote_addr, address, int(r["transaction_log"]["value_pmob"]))
+            flash("Okay, I paid you {} MOB at {}. You happy now?".format(PAYMENT_AMOUNT, address))
         return redirect(url_for("faucet"))
     else:
         return render_template('faucet.html', hcaptcha_site_key=HCAPTCHA_SITE_KEY)
