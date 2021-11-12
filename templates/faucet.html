@@ -7,9 +7,9 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
         $(document).ready(function() {
-            $('#pay-me').click(function(e) {
+            $('form').submit(function(e) {
                 $(this).find('img').show();
-                $(this).prop('disabled', true);
+                $(this).find('button').prop('disabled', true);
             })
         })
     </script>
